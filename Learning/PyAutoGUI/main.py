@@ -44,4 +44,6 @@ minimize_y = 29
 #     time.sleep(1)
 #     pyautogui.scroll(-300)
 
-#Mouse up and down
+#Check if the given coordinates is on screen
+# print(pyautogui.onScreen(-1,-1)) # False
+# print(pyautogui.onScreen(50,50)) # True
