@@ -1,0 +1,1 @@
+print(tuple(x/2 for x in (2,2)))
