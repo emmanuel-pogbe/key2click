@@ -1,6 +1,9 @@
 import pyautogui
 import time
-
+#There is a confidence attribute in locateOnScreen() function family
+#takes a floating point number between 0 and 1
+#It basically says even if there is an X*100% match on the iamge then accept that
+#It requires the opencv module - 'pip install opencv-python'
 def get_search_position():
     try:
         y = pyautogui.locateCenterOnScreen("./Learning/PyAutoGUI/images/reference.png")
