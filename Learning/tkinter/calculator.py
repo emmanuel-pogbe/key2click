@@ -7,9 +7,29 @@ entry1 = tk.Entry(root,width=35,borderwidth=5)
 entry1.grid(row=0,column=0,columnspan=3,padx=10,pady=10)
 
 def btadd(number):
+    if entry1.get() == "Err":
+        entry1.delete(0,tk.END)
     entry1.insert(tk.END,number)
+    
 def clear():
     entry1.delete(0,tk.END)
+def eval():
+    text = entry1.get()
+    soln = 0
+    if "+" in text:
+        digits = text.split("+")
+        for digit in digits:
+            if not digit.isnumeric():
+                soln = "Err"
+                break
+            soln += int(digit)
+    else:
+        if text.isnumeric():
+            soln = int(text)
+        else:
+            soln = "Err"
+    entry1.delete(0,tk.END)
+    entry1.insert(0,str(soln))
 #Define buttons
 but1 = tk.Button(root,text="1",padx=40,pady=20,command=lambda: btadd(1))
 but2 = tk.Button(root,text="2",padx=40,pady=20,command=lambda: btadd(2))
@@ -21,8 +41,8 @@ but7 = tk.Button(root,text="7",padx=40,pady=20,command=lambda: btadd(7))
 but8 = tk.Button(root,text="8",padx=40,pady=20,command=lambda: btadd(8))
 but9 = tk.Button(root,text="9",padx=40,pady=20,command=lambda: btadd(9))
 but0 = tk.Button(root,text="0",padx=40,pady=20,command=lambda: btadd(0))
-but_add = tk.Button(root,text="+",padx=39,pady=20,command=lambda: btadd())
-but_equal = tk.Button(root,text="=",padx=91,pady=20,command=lambda: btadd())
+but_add = tk.Button(root,text="+",padx=39,pady=20,command=lambda: btadd("+"))
+but_equal = tk.Button(root,text="=",padx=91,pady=20,command=eval)
 but_clear = tk.Button(root,text="Clear",padx=79,pady=20,command=clear)
 
 
