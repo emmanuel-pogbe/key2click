@@ -47,7 +47,7 @@ def eval_operator(operator,text):
                 result = float(operator1)*float(operator2)
             elif operator == "/":
                 if float(operator2) == 0:
-                    return None
+                    return "Undefined"
                 result = float(operator1)/float(operator2)
             final = text[:op1[1]] + str(result) + text[op2[1]+1:]
             return final
