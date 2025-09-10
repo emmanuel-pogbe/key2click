@@ -13,14 +13,13 @@ class myGui:
 
         tk.mainloop()
     def open_smth(self):
-        global my_img #Needed to prevent python garbage collector from taking it, Idk how that works
         self.top = tk.Toplevel()
         self.top.title("Top window")
         self.lbl = tk.Label(self.top,text="Hello World").pack()
-        my_img = ImageTk.PhotoImage(Image.open("./Learning/tkinter/images/image1.png").resize((200,200)))
-        tk.Label(self.top,image=my_img).pack()
+        self.my_img = ImageTk.PhotoImage(Image.open("./Learning/tkinter/images/image1.png").resize((200,200)))
+        tk.Label(self.top,image=self.my_img).pack()
 
-        btn2 = tk.Button(self.top,text="Close window",command=self.top.destroy).pack()
+        self.btn2 = tk.Button(self.top,text="Close window",command=self.top.destroy).pack()
 
 
 start = myGui()
