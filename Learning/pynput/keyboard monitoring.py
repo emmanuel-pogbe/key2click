@@ -6,7 +6,7 @@ def on_press(key):
         char = key.char
         print(char)
     except:
-        print("not a char")
+        print(key)
 def on_release(key):
     if key == Key.esc:
         #Stop listener
@@ -15,7 +15,7 @@ def on_release(key):
         char = key.char
         print(char)
     except:
-        print("not a char")
+        print(key)
 with Listener(on_press=on_press,on_release=on_release) as l:
     l.join()
 
