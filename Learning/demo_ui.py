@@ -58,7 +58,7 @@ class myGui:
         self.scrollbar = tk.Scrollbar(master=self.shortcut_list)
         self.scrollbar.pack(side=tk.RIGHT,fill=tk.Y)
 
-        self.shortcuts_listbox = tk.Listbox(master=self.shortcut_list,yscrollcommand=self.scrollbar.set)
+        self.shortcuts_listbox = tk.Listbox(master=self.shortcut_list,yscrollcommand=self.scrollbar.set,width=50,highlightthickness=0)
         self.shortcuts_listbox.pack(fill=tk.X,expand=True)
         self.scrollbar.config(command=self.shortcuts_listbox.yview)
         self.shortcuts.grid(row=5,column=0,columnspan=3)
