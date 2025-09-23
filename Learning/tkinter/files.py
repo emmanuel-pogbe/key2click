@@ -10,11 +10,11 @@ class myGui:
         tk.mainloop()
     def open_file(self):
         #askopenfilename() returns the path of the file selected which can then be used to open the file
-        self.root.filename = filedialog.askopenfilename(title="Select a file",filetypes=(("png files","*.png"),("jpeg files","*.jp*g")))
+        self.filename = filedialog.askopenfilename(title="Select a file",filetypes=(("png files","*.png"),("jpeg files","*.jp*g")))
         
-        self.myLabel = tk.Label(self.root,text=self.root.filename).pack()
+        self.myLabel = tk.Label(self.root,text=self.filename).pack()
         try:
-            self.img = ImageTk.PhotoImage(Image.open(self.root.filename).resize((100,100)))
+            self.img = ImageTk.PhotoImage(Image.open(self.filename).resize((100,100)))
             self.img_label = tk.Label(self.root,image=self.img).pack()
         except FileNotFoundError:
             tk.Label(self.root,text="No image selected").pack()
