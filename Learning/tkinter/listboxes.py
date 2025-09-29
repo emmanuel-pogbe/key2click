@@ -20,13 +20,14 @@ class myGui:
         self.my_listbox.pack(pady=15)
 
         #Add item to listbox
-        self.my_listbox.insert(tk.END,"This is an item") #Index then string for arguments
-        self.my_listbox.insert(tk.END,"Last item") #tk.END puts it at the end
+        self.my_listbox.insert(tk.END,"<alt>+<f4>        5") #Index then string for arguments
+        self.my_listbox.insert(tk.END,"<ctrl>+c>         6") #tk.END puts it at the end
+        self.my_listbox.insert(tk.END,"<ctrl>+f          7") #tk.END puts it at the end
         
         #Add a list of items
         self.my_l = ["One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen"]
-        for item in self.my_l:
-            self.my_listbox.insert(tk.END,item)
+        # for item in self.my_l:
+        #     self.my_listbox.insert(tk.END,item)
         self.my_button = tk.Button(master=self.root,text="Delete",command=self.delete)
         self.my_button.pack(pady=10)
 
@@ -36,7 +37,7 @@ class myGui:
         self.my_button3 = tk.Button(master=self.root,text="Delete all",command=self.delete_all)
         self.my_button3.pack(pady=10)
 
-        self.my_button4 = tk.Button(master=self.root,text="Select all",command=self.select_all)
+        self.my_button4 = tk.Button(master=self.root,text="Select all",command=self.get_all)
         self.my_button4.pack(pady=10)
 
         self.my_button5 = tk.Button(master=self.root,text="Delete multiple",command=self.delete_multiple)
@@ -59,5 +60,9 @@ class myGui:
     def delete_multiple(self):
         for item in reversed(self.my_listbox.curselection()): #reverse the list so that we can delete from the end so as not to affec the current list
             self.my_listbox.delete(item)
+    def get_all(self):
+        shorts = [i.split()[0] for i in self.my_listbox.get(0,tk.END)]
+        print(shorts)
+
         
 start = myGui()

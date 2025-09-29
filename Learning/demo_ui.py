@@ -8,7 +8,8 @@ import time
 
 class myGui:
     def __init__(self):
-        self.default_position = (10,10)
+        self.is_running = False
+        self.default_position = None
         self.root = tk.Tk()
         self.root.title("Key2Click")
         # self.root.attributes("-topmost",True)
@@ -26,14 +27,14 @@ class myGui:
         
         self.main_label.grid(row=0,column=0)
         self.icon.grid(row=0,column=1,padx=5)
-        self.header.grid(row=0,column=0,columnspan=3)
+        self.header.grid(row=0,column=0,columnspan=3,pady=(5,15))
         # self.root.config(cursor="crosshair") #Can be useful later
         
-        self.create_shortcut = tk.Button(master=self.main,text="Select point",command=self.add_map_point) #Select point button
+        self.create_shortcut = tk.Button(master=self.main,text="Select point",command=self.add_map_point,cursor="hand2") #Select point button
         self.selected_point = tk.Label(master=self.main) #Displays the point that was selected, may be removed
 
         self.create_shortcut.grid(row=2,column=1,pady=(0,20)) 
-        self.selected_point.grid(row=1,column=1)
+        # self.selected_point.grid(row=1,column=1)
         
         #Area for collecting the shortcut keybind
         self.shortcut_entry_frame = tk.LabelFrame(master=self.main,borderwidth=0,border=0)  
@@ -45,7 +46,7 @@ class myGui:
     
         self.shortcut_set_to = tk.Label(master=self.main)
 
-        self.add_shortcut = tk.Button(master=self.main,text="Add")
+        self.add_shortcut = tk.Button(master=self.main,text="Add",command=self.add_shortcut)
         self.add_shortcut.grid(row=4,column=1,pady=(0,20))
 
         #Section that contains working shortcuts
@@ -58,7 +59,7 @@ class myGui:
         self.scrollbar = tk.Scrollbar(master=self.shortcut_list)
         self.scrollbar.pack(side=tk.RIGHT,fill=tk.Y)
 
-        self.shortcuts_listbox = tk.Listbox(master=self.shortcut_list,yscrollcommand=self.scrollbar.set,width=50,highlightthickness=0)
+        self.shortcuts_listbox = tk.Listbox(master=self.shortcut_list,yscrollcommand=self.scrollbar.set,width=50,highlightthickness=0,selectmode=tk.EXTENDED)
         self.shortcuts_listbox.pack(fill=tk.X,expand=True)
         self.scrollbar.config(command=self.shortcuts_listbox.yview)
         self.shortcuts.grid(row=5,column=0,columnspan=3)
@@ -66,15 +67,23 @@ class myGui:
         #Options for Opening json file, deleting selected shortcut and editing shortcut
         self.options = tk.LabelFrame(master=self.main,border=0) 
         self.open_saved = tk.Button(master=self.options,text="Open saved")
-        self.delete_shortcut = tk.Button(master=self.options,text="Delete selected")
+        self.delete_shortcut = tk.Button(master=self.options,text="Delete selected",command=self.delete_selected)
         self.edit_shortcut = tk.Button(master=self.options,text="Edit selected")
         self.open_saved.grid(row=0,column=0,padx=10)
         self.delete_shortcut.grid(row=0,column=1,padx=10)
         self.edit_shortcut.grid(row=0,column=2,padx=10)
         self.options.grid(row=6,column=0,columnspan=3,pady=10)
 
+        self.start_btn = tk.Button(master=self.main,text="START",padx=10,pady=10,cursor="hand2",command=self.start_program)
+        self.start_btn.grid(row=7,column=0,columnspan=3)
+
         self.main.pack()
         self.root.mainloop()
+    def start_program(self):
+        if not self.is_running:
+            #Hide stuff on screen first
+            #Start script
+            pass
     def show_help(self,event=None):
         help = """Key2Click can help you use keyboard shortcuts to click on points on your screen
         1. Click on "Create a shortcut"
@@ -86,7 +95,7 @@ class myGui:
     def on_click(self,x,y,button,pressed):
         self.default_position = x,y
         return False
-    def add_map_point(self):  #WIll probably refactor this later
+    def add_map_point(self):  #Will probably refactor this later
         messagebox.showinfo("Note","Click at a point where you want to set a shortcut\n(after closing this message box of course)")
         self.main.pack_forget() #Take away stuff from the screen
         self.root.deiconify()  # Ensure window is not minimized
@@ -94,19 +103,56 @@ class myGui:
         self.root.focus_force() #I don't know, but AI suggested this part
         self.root.attributes("-fullscreen", True)
         self.root.overrideredirect(True)
+        self.root.config(cursor="crosshair") #Change to crosshair cursor
         self.root.attributes("-alpha", 0.2) #Transparency
-        self.root.config(cursor="crosshair")
         self.root.update() #AI suggested this part
         with Listener(on_click=self.on_click) as l:
             l.join()
         coordinate_x, coordinate_y = self.default_position
-        self.main.pack() #Bring back stuff to the screen
+        self.root.after(100,self.main.pack)
+        # self.main.pack() #Bring back stuff to the screen
         self.root.attributes("-fullscreen", False)
         self.root.geometry("500x500")
         self.root.overrideredirect(False)
         self.root.attributes("-alpha", 1)
         self.root.config(cursor="")  # Set back to normal
         self.selected_point.config(text=f"Coordinates -> {coordinate_x},{coordinate_y}")
+        self.selected_point.grid(row=1,column=1)
+    def add_shortcut(self):
+        if not self.default_position:
+            messagebox.showinfo("Note","You have not selected a point!")
+        else:
+            shortcut = self.get_shortcut()
+            if not self.is_available(shortcut=shortcut):
+                messagebox.showinfo("Note","Shortcut is already mapped to a point! Enter another one")
+            elif not shortcut.strip(): 
+                messagebox.showinfo("Note","Please enter a valid shortcut")
+            else:
+                self.shortcuts_listbox.insert(0,self.format_mapping(shortcut=shortcut))
+                self.default_position = None
+                self.selected_point.grid_forget()
+                self.shortcut_entry.delete(0,tk.END)
+    def is_available(self,shortcut):
+        #I might find a better way to do this
+        all_shorts = (shortcut_info.split()[0] for shortcut_info in self.get_all_shortcuts())
+        if shortcut in all_shorts:
+            return False
+        return True
+    def get_all_shortcuts(self):
+        return self.shortcuts_listbox.get(0,tk.END)
+    def format_mapping(self,shortcut):
+        return f"{shortcut.ljust(70)}{self.default_position}"
+    def get_shortcut(self):
+        shortcut = self.shortcut_entry.get()
+        br = shortcut.split("+")
+        for i in range(len(br)):
+            br[i] = br[i].strip()
+            if len(br[i])>1:
+                br[i] = f"<{br[i]}>"
+        return "+".join(br)
+    def delete_selected(self):
+        for item in reversed(self.shortcuts_listbox.curselection()): #reverse the list so that we can delete from the end so as not to affec the current list
+            self.shortcuts_listbox.delete(item)
     def open_file(self):
         self.filename = filedialog.askopenfilename(title="Select a file",filetypes=(("json files","*.json")))
         try:
@@ -114,4 +160,5 @@ class myGui:
                 self.shorts = shortcuts.read()
         except:
             print("Couldn't read file")
-start = myGui()
+if __name__ == "__main__":
+    start = myGui()
