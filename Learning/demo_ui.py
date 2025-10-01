@@ -1,10 +1,11 @@
+import json
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
 from PIL import Image,ImageTk
 from pynput.keyboard import GlobalHotKeys
 from pynput.mouse import Listener
-import time
+import pyautogui
 
 class myGui:
     def __init__(self):
@@ -14,7 +15,7 @@ class myGui:
         self.root.title("Key2Click")
         # self.root.attributes("-topmost",True)
         # self.root.overrideredirect(True)
-        self.root.geometry("500x500")
+        self.root.geometry("700x800")
         self.root.iconbitmap("./Learning/click icon.ico")
 
         self.main = tk.LabelFrame(master=self.root,border=0) #Everything stays inside here
@@ -46,7 +47,7 @@ class myGui:
     
         self.shortcut_set_to = tk.Label(master=self.main)
 
-        self.add_shortcut = tk.Button(master=self.main,text="Add",command=self.add_shortcut)
+        self.add_shortcut = tk.Button(master=self.main,text="Add",command=self.add_shortcut_to_list)
         self.add_shortcut.grid(row=4,column=1,pady=(0,20))
 
         #Section that contains working shortcuts
@@ -59,14 +60,14 @@ class myGui:
         self.scrollbar = tk.Scrollbar(master=self.shortcut_list)
         self.scrollbar.pack(side=tk.RIGHT,fill=tk.Y)
 
-        self.shortcuts_listbox = tk.Listbox(master=self.shortcut_list,yscrollcommand=self.scrollbar.set,width=50,highlightthickness=0,selectmode=tk.EXTENDED)
+        self.shortcuts_listbox = tk.Listbox(master=self.shortcut_list,yscrollcommand=self.scrollbar.set,width=50,highlightthickness=0,selectmode=tk.EXTENDED,font="Courier")
         self.shortcuts_listbox.pack(fill=tk.X,expand=True)
         self.scrollbar.config(command=self.shortcuts_listbox.yview)
         self.shortcuts.grid(row=5,column=0,columnspan=3)
         
         #Options for Opening json file, deleting selected shortcut and editing shortcut
         self.options = tk.LabelFrame(master=self.main,border=0) 
-        self.open_saved = tk.Button(master=self.options,text="Open saved")
+        self.open_saved = tk.Button(master=self.options,text="Open saved",command=self.open_file)
         self.delete_shortcut = tk.Button(master=self.options,text="Delete selected",command=self.delete_selected)
         self.edit_shortcut = tk.Button(master=self.options,text="Edit selected")
         self.open_saved.grid(row=0,column=0,padx=10)
@@ -74,16 +75,43 @@ class myGui:
         self.edit_shortcut.grid(row=0,column=2,padx=10)
         self.options.grid(row=6,column=0,columnspan=3,pady=10)
 
-        self.start_btn = tk.Button(master=self.main,text="START",padx=10,pady=10,cursor="hand2",command=self.start_program)
+        self.start_btn = tk.Button(master=self.main,text="START",padx=10,pady=10,cursor="hand2",command=self.start_program,font="Calibri 16 bold")
         self.start_btn.grid(row=7,column=0,columnspan=3)
 
         self.main.pack()
         self.root.mainloop()
     def start_program(self):
         if not self.is_running:
-            #Hide stuff on screen first
-            #Start script
-            pass
+            self.is_running = True
+            self.start_btn.config(text="STOP")
+            #Hide irrelevant stuff on screen first
+            #Will only show loaded shortcuts
+            self.shortcut_entry_frame.grid_forget()
+            self.add_shortcut.grid_forget()
+            self.create_shortcut.grid_forget()
+            self.options.grid_forget()
+            all_shortcuts = self.get_all_shortcuts()
+            self.shortcuts_dictionary = {
+                short:self.tuplify(mapping) for short,mapping in (shortcut.split() for shortcut in all_shortcuts)
+            }
+            self.hotkey_map = { # I love copilot so much
+                short:(lambda s = short: self.click_point(s)) for short in self.shortcuts_dictionary
+            }
+            self.listener = GlobalHotKeys(self.hotkey_map)
+            self.listener.start()
+        else:
+            self.is_running = False
+            #Bring back stuff to the screen
+            self.shortcut_entry_frame.grid(row=3,column=0,columnspan=3,pady=(0,10))
+            self.add_shortcut.grid(row=4,column=1,pady=(0,20))
+            self.options.grid(row=6,column=0,columnspan=3,pady=10)
+            self.create_shortcut.grid(row=2,column=1,pady=(0,20))
+            self.start_btn.config(text="START")
+            #Stop program
+            self.quit_program(self.listener)
+    def quit_program(self,hotkey_class):
+        if hotkey_class.running:
+            hotkey_class.stop()
     def show_help(self,event=None):
         help = """Key2Click can help you use keyboard shortcuts to click on points on your screen
         1. Click on "Create a shortcut"
@@ -112,13 +140,13 @@ class myGui:
         self.root.after(100,self.main.pack)
         # self.main.pack() #Bring back stuff to the screen
         self.root.attributes("-fullscreen", False)
-        self.root.geometry("500x500")
+        self.root.geometry("700x800")
         self.root.overrideredirect(False)
         self.root.attributes("-alpha", 1)
         self.root.config(cursor="")  # Set back to normal
         self.selected_point.config(text=f"Coordinates -> {coordinate_x},{coordinate_y}")
         self.selected_point.grid(row=1,column=1)
-    def add_shortcut(self):
+    def add_shortcut_to_list(self):
         if not self.default_position:
             messagebox.showinfo("Note","You have not selected a point!")
         else:
@@ -141,7 +169,7 @@ class myGui:
     def get_all_shortcuts(self):
         return self.shortcuts_listbox.get(0,tk.END)
     def format_mapping(self,shortcut):
-        return f"{shortcut.ljust(70)}{self.default_position}"
+        return f"{shortcut.ljust(38)}({self.default_position[0]},{self.default_position[1]})" #For the sake of sakes
     def get_shortcut(self):
         shortcut = self.shortcut_entry.get()
         br = shortcut.split("+")
@@ -154,11 +182,27 @@ class myGui:
         for item in reversed(self.shortcuts_listbox.curselection()): #reverse the list so that we can delete from the end so as not to affec the current list
             self.shortcuts_listbox.delete(item)
     def open_file(self):
-        self.filename = filedialog.askopenfilename(title="Select a file",filetypes=(("json files","*.json")))
+        self.filename = filedialog.askopenfilename(
+            title="Select a file",
+            filetypes=[("JSON files", "*.json")]
+        )
         try:
             with open(self.filename,"r") as shortcuts:
-                self.shorts = shortcuts.read()
+                self.shorts = json.load(shortcuts)
+                print(self.shorts)
         except:
             print("Couldn't read file")
+    def click_point(self,shortcut_key):
+        #Using pyautogui to move to a point, and click on that point
+        coordinate_x,coordinate_y = self.shortcuts_dictionary[shortcut_key] 
+        try:
+            pyautogui.moveTo(coordinate_x,coordinate_y)
+            pyautogui.leftClick()
+        except:
+            pass #Maybe later
+    def tuplify(self,s: str) -> tuple: 
+        #Takes string having a tuple-like structure and turns it into a tuple
+        cleaned = s.strip("() ").split(",")    
+        return tuple(int(x) for x in cleaned)
 if __name__ == "__main__":
     start = myGui()

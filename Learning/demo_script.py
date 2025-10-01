@@ -76,7 +76,7 @@ while True:
         break
 save_shortcuts()
 hotkey_map = {
-    i : (lambda idx=i: click_point(idx)) for i in shortcuts
+    i : (lambda idx=i: click_point(idx)) for i in shortcuts #Shortcut mapped to click_point function
 }
 hotkey_map["<shift>+<esc>"] = stop_script
 print("Press 'shift + esc' to quit")
@@ -85,4 +85,5 @@ print("Press 'shift + esc' to quit")
 # hotkeys.join()
 with GlobalHotKeys(hotkey_map) as g:
     g.join()
+    print(g.running)
 print("Thanks for being here!")
