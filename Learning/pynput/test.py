@@ -1,8 +1,5 @@
-
-def tuplify(str: str) -> tuple:
-    cleaned = str.strip("() ").split(",")    
-    return tuple(int(x) for x in cleaned)
-x = "(6969,    1)"
-y = tuplify(x)
-print(sum(y))
-
+import json
+x = {1:(1,2)}
+y = json.dumps(x)
+print(y)
+print(type(y))

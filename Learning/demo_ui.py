@@ -1,4 +1,6 @@
+import os
 import json
+from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
@@ -9,14 +11,22 @@ import pyautogui
 
 class myGui:
     def __init__(self):
+        #Shortcuts saving variables
+        self.appdata = os.getenv("APPDATA")
+        self.config_dir = Path(self.appdata)/"Key2Click"
+        self.config_dir.mkdir(exist_ok=True)
+        self.config_file = self.config_dir/"shortcuts.json"
+
         self.is_running = False
         self.default_position = None
+        self.shortcuts_dictionary = {}
         self.root = tk.Tk()
         self.root.title("Key2Click")
         # self.root.attributes("-topmost",True)
         # self.root.overrideredirect(True)
         self.root.geometry("700x800")
         self.root.iconbitmap("./Learning/click icon.ico")
+        self.root.protocol("WM_DELETE_WINDOW",self.on_close) #When closing window - call self.on_close() function
 
         self.main = tk.LabelFrame(master=self.root,border=0) #Everything stays inside here
         self.header = tk.LabelFrame(master=self.main,border=0)
@@ -78,8 +88,14 @@ class myGui:
         self.start_btn = tk.Button(master=self.main,text="START",padx=10,pady=10,cursor="hand2",command=self.start_program,font="Calibri 16 bold")
         self.start_btn.grid(row=7,column=0,columnspan=3)
 
+        #Bring back auto_saved shortcuts
+        self.auto_saved_shortcuts()
+
         self.main.pack()
         self.root.mainloop()
+    def on_close(self):
+        self.save_shortcuts() #Save shortcuts before closing file
+        self.root.destroy()
     def start_program(self):
         if not self.is_running:
             self.is_running = True
@@ -90,10 +106,7 @@ class myGui:
             self.add_shortcut.grid_forget()
             self.create_shortcut.grid_forget()
             self.options.grid_forget()
-            all_shortcuts = self.get_all_shortcuts()
-            self.shortcuts_dictionary = {
-                short:self.tuplify(mapping) for short,mapping in (shortcut.split() for shortcut in all_shortcuts)
-            }
+            self.shortcuts_dictionary = self.get_shortcut_dictionary()
             self.hotkey_map = { # I love copilot so much
                 short:(lambda s = short: self.click_point(s)) for short in self.shortcuts_dictionary
             }
@@ -156,7 +169,7 @@ class myGui:
             elif not shortcut.strip(): 
                 messagebox.showinfo("Note","Please enter a valid shortcut")
             else:
-                self.shortcuts_listbox.insert(0,self.format_mapping(shortcut=shortcut,position=self.default_position))
+                self.insert_listbox(shortcut,self.default_position)
                 self.default_position = None
                 self.selected_point.grid_forget()
                 self.shortcut_entry.delete(0,tk.END)
@@ -168,6 +181,8 @@ class myGui:
         return True
     def get_all_shortcuts(self):
         return self.shortcuts_listbox.get(0,tk.END)
+    def insert_listbox(self,shortcut,position):
+        self.shortcuts_listbox.insert(0,self.format_mapping(shortcut=shortcut,position=position))
     def format_mapping(self,shortcut,position):
         return f"{shortcut.ljust(38)}({position[0]},{position[1]})" #For the sake of sakes
     def get_shortcut(self):
@@ -189,9 +204,38 @@ class myGui:
         try:
             with open(self.filename,"r") as shortcuts:
                 self.shorts = json.load(shortcuts)
-                print(self.shorts)
+                for shortcut in self.shorts:
+                    #Perform a check here first to determine if shortcut is valid
+                    self.insert_listbox(shortcut,self.shorts.get(shortcut))
         except:
-            print("Couldn't read file")
+            messagebox.showerror("Read error", "Oops! Something went wrong")
+    def save_shortcuts(self):
+        try:
+            with open(self.config_file,"w") as sh:
+                
+                json.dump(self.shortcuts_dictionary,sh,indent=2)
+        except:
+            #What do I put here incase saving fails, hmmm
+            print("Unsuccessful")
+            pass
+    def get_shortcut_dictionary(self):
+        all_shortcuts = self.get_all_shortcuts()
+        short_dict = {
+            short:self.listify(mapping) for short,mapping in (shortcut.split() for shortcut in all_shortcuts)
+        }
+        return short_dict
+
+    def auto_saved_shortcuts(self):
+        #For loading autosaved shortcuts when app is opened 
+        try:
+            with open(self.config_file,"r") as sh:
+                shortcuts = json.load(sh)
+                for short,short_position in shortcuts.items():
+                    self.insert_listbox(short,short_position)
+        except:
+            #No autosaved shortcuts in this case
+            print("I couldn't load the shortcuts :(")
+        pass
     def click_point(self,shortcut_key):
         #Using pyautogui to move to a point, and click on that point
         coordinate_x,coordinate_y = self.shortcuts_dictionary[shortcut_key] 
@@ -200,9 +244,9 @@ class myGui:
             pyautogui.leftClick()
         except:
             pass #Maybe later
-    def tuplify(self,s: str) -> tuple: 
+    def listify(self,s: str) -> tuple: 
         #Takes string having a tuple-like structure and turns it into a tuple
         cleaned = s.strip("() ").split(",")    
-        return tuple(int(x) for x in cleaned)
+        return list(int(x) for x in cleaned)
 if __name__ == "__main__":
     start = myGui()
