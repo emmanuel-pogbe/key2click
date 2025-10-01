@@ -156,7 +156,7 @@ class myGui:
             elif not shortcut.strip(): 
                 messagebox.showinfo("Note","Please enter a valid shortcut")
             else:
-                self.shortcuts_listbox.insert(0,self.format_mapping(shortcut=shortcut))
+                self.shortcuts_listbox.insert(0,self.format_mapping(shortcut=shortcut,position=self.default_position))
                 self.default_position = None
                 self.selected_point.grid_forget()
                 self.shortcut_entry.delete(0,tk.END)
@@ -168,8 +168,8 @@ class myGui:
         return True
     def get_all_shortcuts(self):
         return self.shortcuts_listbox.get(0,tk.END)
-    def format_mapping(self,shortcut):
-        return f"{shortcut.ljust(38)}({self.default_position[0]},{self.default_position[1]})" #For the sake of sakes
+    def format_mapping(self,shortcut,position):
+        return f"{shortcut.ljust(38)}({position[0]},{position[1]})" #For the sake of sakes
     def get_shortcut(self):
         shortcut = self.shortcut_entry.get()
         br = shortcut.split("+")
