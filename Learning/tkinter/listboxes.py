@@ -45,6 +45,7 @@ class myGui:
 
         self.my_label = tk.Label(master=self.root,text='')
         self.my_label.pack(pady=5)
+        tk.Button(master=self.root,text="Update something",command=self.update_first).pack()
         tk.mainloop()
     def delete(self): #When something is selected in your listbox, it becomes the anchor - tk.ANCHOR
         self.my_listbox.delete(tk.ANCHOR)
@@ -63,6 +64,10 @@ class myGui:
     def get_all(self):
         shorts = [i.split()[0] for i in self.my_listbox.get(0,tk.END)]
         print(shorts)
-
+    def update_first(self):
+        selected = self.my_listbox.curselection()
+        if len(selected) == 1:
+            self.my_listbox.delete(selected[0])
+            self.my_listbox.insert(selected[0],"Haha, updated ya!")
         
 start = myGui()

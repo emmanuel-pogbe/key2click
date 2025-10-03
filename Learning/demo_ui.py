@@ -79,7 +79,7 @@ class myGui:
         self.options = tk.LabelFrame(master=self.main,border=0) 
         self.open_saved = tk.Button(master=self.options,text="Open saved",command=self.open_file)
         self.delete_shortcut = tk.Button(master=self.options,text="Delete selected",command=self.delete_selected)
-        self.edit_shortcut = tk.Button(master=self.options,text="Edit selected")
+        self.edit_shortcut = tk.Button(master=self.options,text="Edit Point",command=self.edit_selected_point)
         self.open_saved.grid(row=0,column=0,padx=10)
         self.delete_shortcut.grid(row=0,column=1,padx=10)
         self.edit_shortcut.grid(row=0,column=2,padx=10)
@@ -136,27 +136,35 @@ class myGui:
     def on_click(self,x,y,button,pressed):
         self.default_position = x,y
         return False
+    def configure_selection_window(self,is_selecting):
+        if is_selecting == True:
+            self.main.pack_forget() #Take away stuff from the screen
+            self.root.deiconify()  # Ensure window is not minimized
+            self.root.lift()       # Bring window to front (AI suggested this part)
+            self.root.focus_force() #I don't know, but AI suggested this part
+            self.root.attributes("-fullscreen", True)
+            self.root.overrideredirect(True)
+            self.root.config(cursor="crosshair") #Change to crosshair cursor
+            self.root.update_idletasks()  # Force update of idle tasks
+            self.root.after(100)          # Short delay to let window manager catch up
+            self.root.attributes("-alpha", 0.2) #Transparency
+            self.root.update() #AI suggested this part
+        else:
+            self.root.after(100,self.main.pack)
+            # self.main.pack() #Bring back stuff to the screen
+            self.root.attributes("-fullscreen", False)
+            self.root.geometry("700x800")
+            self.root.overrideredirect(False)
+            self.root.attributes("-alpha", 1)
+            self.root.config(cursor="")  # Set back to normal
+
     def add_map_point(self):  #Will probably refactor this later
         messagebox.showinfo("Note","Click at a point where you want to set a shortcut\n(after closing this message box of course)")
-        self.main.pack_forget() #Take away stuff from the screen
-        self.root.deiconify()  # Ensure window is not minimized
-        self.root.lift()       # Bring window to front (AI suggested this part)
-        self.root.focus_force() #I don't know, but AI suggested this part
-        self.root.attributes("-fullscreen", True)
-        self.root.overrideredirect(True)
-        self.root.config(cursor="crosshair") #Change to crosshair cursor
-        self.root.attributes("-alpha", 0.2) #Transparency
-        self.root.update() #AI suggested this part
+        self.configure_selection_window(True)
         with Listener(on_click=self.on_click) as l:
             l.join()
         coordinate_x, coordinate_y = self.default_position
-        self.root.after(100,self.main.pack)
-        # self.main.pack() #Bring back stuff to the screen
-        self.root.attributes("-fullscreen", False)
-        self.root.geometry("700x800")
-        self.root.overrideredirect(False)
-        self.root.attributes("-alpha", 1)
-        self.root.config(cursor="")  # Set back to normal
+        self.configure_selection_window(False)
         self.selected_point.config(text=f"Coordinates -> {coordinate_x},{coordinate_y}")
         self.selected_point.grid(row=1,column=1)
     def add_shortcut_to_list(self):
@@ -211,12 +219,11 @@ class myGui:
             messagebox.showerror("Read error", "Oops! Something went wrong")
     def save_shortcuts(self):
         try:
-            with open(self.config_file,"w") as sh:
-                
+            with open(self.config_file,"w") as sh:    
                 json.dump(self.shortcuts_dictionary,sh,indent=2)
-        except:
+        except Exception as e:
             #What do I put here incase saving fails, hmmm
-            print("Unsuccessful")
+            print("Unsuccessful:",e)
             pass
     def get_shortcut_dictionary(self):
         all_shortcuts = self.get_all_shortcuts()
@@ -224,21 +231,35 @@ class myGui:
             short:self.listify(mapping) for short,mapping in (shortcut.split() for shortcut in all_shortcuts)
         }
         return short_dict
-
+    def edit_selected_point(self):
+        selected = self.shortcuts_listbox.curselection()
+        if len(selected) == 1:
+            self.configure_selection_window(True) #Configure screen to select a new point
+            with Listener(on_click=self.on_click) as l:
+                l.join()
+            coordinate_x, coordinate_y = self.default_position
+            self.configure_selection_window(False)
+            selected_point = self.shortcuts_listbox.get(selected[0])
+            idx = selected_point.rfind("(")
+            # end_str = selected_point[idx:]  #Not needed
+            start_str = selected_point[:idx].strip()
+            self.shortcuts_listbox.delete(selected[0])
+            self.shortcuts_listbox.insert(selected[0],self.format_mapping(start_str,self.default_position))
     def auto_saved_shortcuts(self):
         #For loading autosaved shortcuts when app is opened 
         try:
             with open(self.config_file,"r") as sh:
                 shortcuts = json.load(sh)
                 for short,short_position in shortcuts.items():
+                    self.shortcuts_dictionary[short] = short_position
                     self.insert_listbox(short,short_position)
-        except:
+        except Exception as e:
             #No autosaved shortcuts in this case
-            print("I couldn't load the shortcuts :(")
+            print("I couldn't load the shortcuts :(",e)
         pass
     def click_point(self,shortcut_key):
         #Using pyautogui to move to a point, and click on that point
-        coordinate_x,coordinate_y = self.shortcuts_dictionary[shortcut_key] 
+        coordinate_x,coordinate_y = self.shortcuts_dictionary.get(shortcut_key) 
         try:
             pyautogui.moveTo(coordinate_x,coordinate_y)
             pyautogui.leftClick()
