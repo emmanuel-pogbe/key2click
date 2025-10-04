@@ -204,6 +204,13 @@ class myGui:
     def delete_selected(self):
         for item in reversed(self.shortcuts_listbox.curselection()): #reverse the list so that we can delete from the end so as not to affec the current list
             self.shortcuts_listbox.delete(item)
+            item_string = self.shortcuts_listbox.get(item)
+            idx = item_string.rfind("(")
+            # end_str = selected_point[idx:]  #Not needed
+            start_str = item_string[:idx].strip()
+            if start_str in self.shortcuts_dictionary:
+                self.shortcuts_dictionary.pop(start_str)
+            self.save_shortcuts()
     def open_file(self):
         self.filename = filedialog.askopenfilename(
             title="Select a file",
@@ -212,11 +219,21 @@ class myGui:
         try:
             with open(self.filename,"r") as shortcuts:
                 self.shorts = json.load(shortcuts)
+                duplicates_ = set()
                 for shortcut in self.shorts:
                     #Perform a check here first to determine if shortcut is valid
-                    self.insert_listbox(shortcut,self.shorts.get(shortcut))
-        except:
-            messagebox.showerror("Read error", "Oops! Something went wrong")
+                    if shortcut not in self.shortcuts_dictionary:
+                        temp_shortcut = self.shorts.get(shortcut)
+                        self.insert_listbox(shortcut,temp_shortcut)
+                        self.shortcuts_dictionary[shortcut] = temp_shortcut
+                        
+                    else:
+                        duplicates_.add(shortcut)
+                if duplicates_:
+                    messagebox.showinfo("Unloaded shortcuts",f"{duplicates_} already present in loaded shortcuts")
+                    print(self.shortcuts_dictionary)    
+        except BaseException as e:
+            messagebox.showerror("Read error", f"Oops! Something went wrong {e.__class__.__name__} {e}")
     def save_shortcuts(self):
         try:
             with open(self.config_file,"w") as sh:    
@@ -254,7 +271,6 @@ class myGui:
                     self.shortcuts_dictionary[short] = short_position
                     self.insert_listbox(short,short_position)
         except Exception as e:
-            #No autosaved shortcuts in this case
             print("I couldn't load the shortcuts :(",e)
         pass
     def click_point(self,shortcut_key):
