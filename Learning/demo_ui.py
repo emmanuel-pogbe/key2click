@@ -78,11 +78,13 @@ class myGui:
         #Options for Opening json file, deleting selected shortcut and editing shortcut
         self.options = tk.LabelFrame(master=self.main,border=0) 
         self.open_saved = tk.Button(master=self.options,text="Open saved",command=self.open_file)
+        self.export_to = tk.Button(master=self.options,text="Export shortcuts",command=self.export_to_json)
         self.delete_shortcut = tk.Button(master=self.options,text="Delete selected",command=self.delete_selected)
         self.edit_shortcut = tk.Button(master=self.options,text="Edit Point",command=self.edit_selected_point)
         self.open_saved.grid(row=0,column=0,padx=10)
-        self.delete_shortcut.grid(row=0,column=1,padx=10)
-        self.edit_shortcut.grid(row=0,column=2,padx=10)
+        self.export_to.grid(row=0,column=1,padx=10)
+        self.delete_shortcut.grid(row=0,column=2,padx=10)
+        self.edit_shortcut.grid(row=0,column=3,padx=10)
         self.options.grid(row=6,column=0,columnspan=3,pady=10)
 
         self.start_btn = tk.Button(master=self.main,text="START",padx=10,pady=10,cursor="hand2",command=self.start_program,font="Calibri 16 bold")
@@ -204,15 +206,19 @@ class myGui:
                 br[i] = f"<{br[i]}>"
         return "+".join(br)
     def delete_selected(self):
-        for item in reversed(self.shortcuts_listbox.curselection()): #reverse the list so that we can delete from the end so as not to affec the current list
-            self.shortcuts_listbox.delete(item)
-            item_string = self.shortcuts_listbox.get(item)
-            idx = item_string.rfind("(")
-            # end_str = selected_point[idx:]  #Not needed
-            start_str = item_string[:idx].strip()
-            if start_str in self.shortcuts_dictionary:
-                self.shortcuts_dictionary.pop(start_str)
-            self.save_shortcuts()
+        selected = self.shortcuts_listbox.curselection()
+        if len(selected) >= 1:
+            for item in reversed(selected): #reverse the list so that we can delete from the end so as not to affec the current list
+                item_string = self.shortcuts_listbox.get(item)
+                self.shortcuts_listbox.delete(item)
+                idx = item_string.rfind("(")
+                # end_str = selected_point[idx:]  #Not needed
+                start_str = item_string[:idx].strip()
+                if start_str in self.shortcuts_dictionary:
+                    self.shortcuts_dictionary.pop(start_str)
+                self.save_shortcuts()
+        else:
+            messagebox.showinfo("No shortcut selected","You have not selected any shortcut to delete")
     def open_file(self):
         self.filename = filedialog.askopenfilename(
             title="Select a file",
@@ -232,17 +238,26 @@ class myGui:
                     else:
                         duplicates_.add(shortcut)
                 if duplicates_:
-                    messagebox.showinfo("Unloaded shortcuts",f"{duplicates_} already present in loaded shortcuts")
-                    print(self.shortcuts_dictionary)    
+                    messagebox.showinfo("Unloaded shortcuts",f"{duplicates_} already present in loaded shortcuts")  
         except BaseException as e:
             messagebox.showerror("Read error", f"Oops! Something went wrong {e.__class__.__name__} {e}")
+    def export_to_json(self):
+        if len(self.shortcuts_dictionary) < 1:
+            messagebox.showinfo("No loaded shortcuts","There are no loaded shortcuts to export")
+        else:
+            try:
+                file1 = filedialog.asksaveasfile("w",defaultextension="json",filetypes=[("JSON files", "*.json")],title="Export loaded shortcuts")
+                json.dump(self.shortcuts_dictionary,file1,indent=2)
+                file1.close()
+            except BaseException as e:
+                messagebox.showerror("Error","Oops! Something went wrong:",e.__class__.__name__)
+            pass
     def save_shortcuts(self):
         try:
             with open(self.config_file,"w") as sh:    
                 json.dump(self.shortcuts_dictionary,sh,indent=2)
-        except Exception as e:
-            #What do I put here incase saving fails, hmmm
-            print("Unsuccessful:",e)
+        except BaseException as e:
+            #What do I put here incase saving fails, probably log it or something, idk
             pass
     def get_shortcut_dictionary(self):
         all_shortcuts = self.get_all_shortcuts()
@@ -264,6 +279,10 @@ class myGui:
             start_str = selected_point[:idx].strip()
             self.shortcuts_listbox.delete(selected[0])
             self.shortcuts_listbox.insert(selected[0],self.format_mapping(start_str,self.default_position))
+        elif len(selected) >1 :
+            messagebox.showinfo("Multiple selections","You can only edit one shortcut point at a time")
+        else:
+            messagebox.showinfo("No shortcut selected","You have not selected any shortcut to edit")
     def auto_saved_shortcuts(self):
         #For loading autosaved shortcuts when app is opened 
         try:
@@ -272,17 +291,17 @@ class myGui:
                 for short,short_position in shortcuts.items():
                     self.shortcuts_dictionary[short] = short_position
                     self.insert_listbox(short,short_position)
-        except Exception as e:
-            print("I couldn't load the shortcuts :(",e)
-        pass
+        except BaseException as e:
+            #autosave didn't work I guess, oh well
+            pass
     def click_point(self,shortcut_key):
         #Using pyautogui to move to a point, and click on that point
         coordinate_x,coordinate_y = self.shortcuts_dictionary.get(shortcut_key) 
         try:
             pyautogui.moveTo(coordinate_x,coordinate_y)
             pyautogui.leftClick()
-        except:
-            pass #Maybe later
+        except BaseException as e:
+             messagebox.showerror("Error","Something went wrong:",e.__class__.__name__)
     def listify(self,s: str) -> tuple: 
         #Takes string having a tuple-like structure and turns it into a tuple
         cleaned = s.strip("() ").split(",")    
