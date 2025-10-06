@@ -178,9 +178,11 @@ class myGui:
                 messagebox.showinfo("Note","Please enter a valid shortcut")
             else:
                 self.insert_listbox(shortcut,self.default_position)
+                self.shortcuts_dictionary[shortcut] = self.default_position
                 self.default_position = None
                 self.selected_point.grid_forget()
                 self.shortcut_entry.delete(0,tk.END)
+                self.save_shortcuts()
     def is_available(self,shortcut):
         #I might find a better way to do this
         all_shorts = (shortcut_info.split()[0] for shortcut_info in self.get_all_shortcuts())
