@@ -240,25 +240,24 @@ class myGui:
                             duplicates_.add(shortcut)
                     if duplicates_:
                         messagebox.showinfo("Unloaded shortcuts",f"{duplicates_} already present in loaded shortcuts")  
-            except BaseException as e:
+            except Exception as e:
                 messagebox.showerror("Read error", f"Oops! Something went wrong {e.__class__.__name__} {e}")
     def export_to_json(self):
         if len(self.shortcuts_dictionary) < 1:
             messagebox.showinfo("No loaded shortcuts","There are no loaded shortcuts to export")
         else:
             try:
-                json_file = filedialog.asksaveasfile("w",defaultextension="json",filetypes=[("JSON files", "*.json")],title="Export loaded shortcuts")
+                json_file = filedialog.asksaveasfile(mode="w",defaultextension="json",filetypes=[("JSON files", "*.json")],title="Export loaded shortcuts")
                 if json_file:
                     json.dump(self.shortcuts_dictionary,json_file,indent=2)
                     json_file.close()
-            except BaseException as e:
+            except Exception as e:
                 messagebox.showerror("Error",f"Oops! Something went wrong: {e.__class__.__name__}")
-            pass
     def save_shortcuts(self):
         try:
             with open(self.config_file,"w") as sh:    
                 json.dump(self.shortcuts_dictionary,sh,indent=2)
-        except BaseException as e:
+        except Exception as e:
             #What do I put here incase saving fails, probably log it or something, idk
             pass
     def get_shortcut_dictionary(self):
@@ -293,7 +292,7 @@ class myGui:
                 for short,short_position in shortcuts.items():
                     self.shortcuts_dictionary[short] = short_position
                     self.insert_listbox(short,short_position)
-        except BaseException as e:
+        except Exception as e:
             #autosave didn't work I guess, oh well
             pass
     def click_point(self,shortcut_key):
@@ -302,7 +301,7 @@ class myGui:
         try:
             pyautogui.moveTo(coordinate_x,coordinate_y)
             pyautogui.leftClick()
-        except BaseException as e:
+        except Exception as e:
              messagebox.showerror("Error",f"Something went wrong: {e.__class__.__name__}")
     def listify(self,s: str) -> tuple: 
         #Takes string having a tuple-like structure and turns it into a tuple
