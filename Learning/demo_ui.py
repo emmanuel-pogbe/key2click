@@ -218,39 +218,41 @@ class myGui:
                     self.shortcuts_dictionary.pop(start_str)
                 self.save_shortcuts()
         else:
-            messagebox.showinfo("No shortcut selected","You have not selected any shortcut to delete")
+            messagebox.showinfo("No shortcut selected","You have not selected any shortcut to delete!")
     def open_file(self):
         self.filename = filedialog.askopenfilename(
             title="Select a file",
             filetypes=[("JSON files", "*.json")]
         )
-        try:
-            with open(self.filename,"r") as shortcuts:
-                self.shorts = json.load(shortcuts)
-                duplicates_ = set()
-                for shortcut in self.shorts:
-                    #Perform a check here first to determine if shortcut is valid
-                    if shortcut not in self.shortcuts_dictionary:
-                        temp_shortcut = self.shorts.get(shortcut)
-                        self.insert_listbox(shortcut,temp_shortcut)
-                        self.shortcuts_dictionary[shortcut] = temp_shortcut
-                        
-                    else:
-                        duplicates_.add(shortcut)
-                if duplicates_:
-                    messagebox.showinfo("Unloaded shortcuts",f"{duplicates_} already present in loaded shortcuts")  
-        except BaseException as e:
-            messagebox.showerror("Read error", f"Oops! Something went wrong {e.__class__.__name__} {e}")
+        if self.filename:
+            try:
+                with open(self.filename,"r") as shortcuts:
+                    self.shorts = json.load(shortcuts)
+                    duplicates_ = set()
+                    for shortcut in self.shorts:
+                        #Perform a check here first to determine if shortcut is valid
+                        if shortcut not in self.shortcuts_dictionary:
+                            temp_shortcut = self.shorts.get(shortcut)
+                            self.insert_listbox(shortcut,temp_shortcut)
+                            self.shortcuts_dictionary[shortcut] = temp_shortcut
+                            
+                        else:
+                            duplicates_.add(shortcut)
+                    if duplicates_:
+                        messagebox.showinfo("Unloaded shortcuts",f"{duplicates_} already present in loaded shortcuts")  
+            except BaseException as e:
+                messagebox.showerror("Read error", f"Oops! Something went wrong {e.__class__.__name__} {e}")
     def export_to_json(self):
         if len(self.shortcuts_dictionary) < 1:
             messagebox.showinfo("No loaded shortcuts","There are no loaded shortcuts to export")
         else:
             try:
-                file1 = filedialog.asksaveasfile("w",defaultextension="json",filetypes=[("JSON files", "*.json")],title="Export loaded shortcuts")
-                json.dump(self.shortcuts_dictionary,file1,indent=2)
-                file1.close()
+                json_file = filedialog.asksaveasfile("w",defaultextension="json",filetypes=[("JSON files", "*.json")],title="Export loaded shortcuts")
+                if json_file:
+                    json.dump(self.shortcuts_dictionary,json_file,indent=2)
+                    json_file.close()
             except BaseException as e:
-                messagebox.showerror("Error","Oops! Something went wrong:",e.__class__.__name__)
+                messagebox.showerror("Error",f"Oops! Something went wrong: {e.__class__.__name__}")
             pass
     def save_shortcuts(self):
         try:
@@ -282,7 +284,7 @@ class myGui:
         elif len(selected) >1 :
             messagebox.showinfo("Multiple selections","You can only edit one shortcut point at a time")
         else:
-            messagebox.showinfo("No shortcut selected","You have not selected any shortcut to edit")
+            messagebox.showinfo("No shortcut selected","You have not selected any shortcut to edit!")
     def auto_saved_shortcuts(self):
         #For loading autosaved shortcuts when app is opened 
         try:
@@ -301,7 +303,7 @@ class myGui:
             pyautogui.moveTo(coordinate_x,coordinate_y)
             pyautogui.leftClick()
         except BaseException as e:
-             messagebox.showerror("Error","Something went wrong:",e.__class__.__name__)
+             messagebox.showerror("Error",f"Something went wrong: {e.__class__.__name__}")
     def listify(self,s: str) -> tuple: 
         #Takes string having a tuple-like structure and turns it into a tuple
         cleaned = s.strip("() ").split(",")    
