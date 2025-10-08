@@ -164,14 +164,15 @@ class myGui:
             self.root.config(cursor="")  # Set back to normal
 
     def add_map_point(self):  #Will probably refactor this later
-        messagebox.showinfo("Note","Click at a point where you want to set a shortcut\n(after closing this message box of course)")
-        self.configure_selection_window(True)
-        with Listener(on_click=self.on_click) as l:
-            l.join()
-        coordinate_x, coordinate_y = self.default_position
-        self.configure_selection_window(False)
-        self.selected_point.config(text=f"Coordinates -> {coordinate_x},{coordinate_y}")
-        self.selected_point.grid(row=1,column=1)
+        proceed = messagebox.askokcancel("Note","Click at a point where you want to set a shortcut\n(after clicking 'ok' of course)")
+        if proceed:
+            self.configure_selection_window(True)
+            with Listener(on_click=self.on_click) as l:
+                l.join()
+            coordinate_x, coordinate_y = self.default_position
+            self.configure_selection_window(False)
+            self.selected_point.config(text=f"Coordinates -> {coordinate_x},{coordinate_y}")
+            self.selected_point.grid(row=1,column=1)
     def add_shortcut_to_list(self):
         if not self.default_position:
             messagebox.showinfo("Note","You have not selected a point!")
