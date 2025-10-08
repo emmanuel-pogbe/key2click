@@ -1,1 +1,0 @@
-#Write a function to convert a string to a valid pynput function

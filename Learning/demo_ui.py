@@ -5,12 +5,14 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
 from PIL import Image,ImageTk
+from pynput.keyboard import HotKey
 from pynput.keyboard import GlobalHotKeys
 from pynput.mouse import Listener
 import pyautogui
 
 class myGui:
     def __init__(self):
+        pyautogui.FAILSAFE = False
         #Shortcuts saving variables
         self.appdata = os.getenv("APPDATA")
         self.config_dir = Path(self.appdata)/"Key2Click"
@@ -100,20 +102,21 @@ class myGui:
         self.root.destroy()
     def start_program(self):
         if not self.is_running:
-            self.is_running = True
-            self.start_btn.config(text="STOP")
-            #Hide irrelevant stuff on screen first
-            #Will only show loaded shortcuts
-            self.shortcut_entry_frame.grid_forget()
-            self.add_shortcut.grid_forget()
-            self.create_shortcut.grid_forget()
-            self.options.grid_forget()
-            self.shortcuts_dictionary = self.get_shortcut_dictionary()
-            self.hotkey_map = { # I love copilot so much
-                short:(lambda s = short: self.click_point(s)) for short in self.shortcuts_dictionary
-            }
-            self.listener = GlobalHotKeys(self.hotkey_map)
-            self.listener.start()
+            if len(self.shortcuts_dictionary)>0:
+                self.is_running = True
+                self.start_btn.config(text="STOP")
+                #Hide irrelevant stuff on screen first
+                #Will only show loaded shortcuts
+                self.shortcut_entry_frame.grid_forget()
+                self.add_shortcut.grid_forget()
+                self.create_shortcut.grid_forget()
+                self.options.grid_forget()
+                self.shortcuts_dictionary = self.get_shortcut_dictionary()
+                self.hotkey_map = { # I love copilot so much
+                    short:(lambda s = short: self.click_point(s)) for short in self.shortcuts_dictionary
+                }
+                self.listener = GlobalHotKeys(self.hotkey_map)
+                self.listener.start()
         else:
             self.is_running = False
             #Bring back stuff to the screen
@@ -173,11 +176,11 @@ class myGui:
         if not self.default_position:
             messagebox.showinfo("Note","You have not selected a point!")
         else:
-            shortcut = self.get_shortcut()
+            shortcut = self.get_shortcut().lower()
             if not self.is_available(shortcut=shortcut):
-                messagebox.showinfo("Note","Shortcut is already mapped to a point! Enter another one")
-            elif not shortcut.strip(): 
-                messagebox.showinfo("Note","Please enter a valid shortcut")
+                messagebox.showinfo("Note","Shortcut is already mapped to a point! Enter another one\nNote: Shortcuts are case-insensitive")
+            elif not self.is_valid_shortcut(shortcut): 
+                messagebox.showinfo("Note","Please enter a valid shortcut! Here are some ideas (the '+' is very important)\nctrl+f\nalt+p\nshift+1\nctrl+alt+3\nz\n9\nShortcuts are case-insensitive")
             else:
                 self.insert_listbox(shortcut,self.default_position)
                 self.shortcuts_dictionary[shortcut] = self.default_position
@@ -220,25 +223,39 @@ class myGui:
         else:
             messagebox.showinfo("No shortcut selected","You have not selected any shortcut to delete!")
     def open_file(self):
+        screen_size = pyautogui.size()
         self.filename = filedialog.askopenfilename(
             title="Select a file",
             filetypes=[("JSON files", "*.json")]
         )
         if self.filename:
+            is_corrupt = False
             try:
                 with open(self.filename,"r") as shortcuts:
                     self.shorts = json.load(shortcuts)
                     duplicates_ = set()
                     for shortcut in self.shorts:
-                        #Perform a check here first to determine if shortcut is valid
-                        if shortcut not in self.shortcuts_dictionary:
-                            temp_shortcut = self.shorts.get(shortcut)
-                            self.insert_listbox(shortcut,temp_shortcut)
-                            self.shortcuts_dictionary[shortcut] = temp_shortcut
-                            
+                        #If shortcut is valid and the value for the shortcut is a list and the length of the list = 2 (x and y values) and both values are integers and points are within the size of the screen
+                        shortcut = shortcut.lower()
+                        points = self.shorts.get(shortcut)
+                        if self.is_valid_shortcut(shortcut) and type(points) == list and len(points) == 2 and all(isinstance(x,int) for x in points) and points[0]<=screen_size[0] and points[1]<=screen_size[1]:
+                            if shortcut not in self.shortcuts_dictionary:
+                                temp_shortcut = self.shorts.get(shortcut)
+                                self.insert_listbox(shortcut,temp_shortcut)
+                                self.shortcuts_dictionary[shortcut] = temp_shortcut
+                            else:
+                                duplicates_.add(shortcut)
                         else:
-                            duplicates_.add(shortcut)
-                    if duplicates_:
+                            is_corrupt = True
+                    if is_corrupt:
+                        messagebox.showwarning("Error loading shortcuts","Some shortcuts were not loaded! " \
+                        "Confirm that the file is formatted properly\n" \
+                        "1. Ensure that all the keys are valid shortcuts\n" \
+                        "2. Ensure all the values are lists\n" \
+                        "3. Ensure there are only 2 elements in each list and are integers\n" \
+                        f"4. Ensure the points are within the bounds of your screen size {tuple(screen_size)}"    
+                        )
+                    elif duplicates_:
                         messagebox.showinfo("Unloaded shortcuts",f"{duplicates_} already present in loaded shortcuts")  
             except Exception as e:
                 messagebox.showerror("Read error", f"Oops! Something went wrong {e.__class__.__name__} {e}")
@@ -301,8 +318,17 @@ class myGui:
         try:
             pyautogui.moveTo(coordinate_x,coordinate_y)
             pyautogui.leftClick()
+        except pyautogui.FailSafeException as e:
+            pass
         except Exception as e:
-             messagebox.showerror("Error",f"Something went wrong: {e.__class__.__name__}")
+             messagebox.showerror("Error",f"Something went wrong: {e.__class__.__name__} {e}")
+    def is_valid_shortcut(self,s: str):
+        try:
+            HotKey.parse(s)
+            return True
+        except:
+            #We can have more try except blocks in this place to make input handling more robust
+            return False
     def listify(self,s: str) -> tuple: 
         #Takes string having a tuple-like structure and turns it into a tuple
         cleaned = s.strip("() ").split(",")    
