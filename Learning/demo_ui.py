@@ -12,8 +12,10 @@ import pyautogui
 
 class myGui:
     def __init__(self):
+        self.button_fg ="#333333"
+
         pyautogui.FAILSAFE = False
-        #Shortcuts saving variables
+        #Where to save shortcuts
         self.appdata = os.getenv("APPDATA")
         self.config_dir = Path(self.appdata)/"Key2Click"
         self.config_dir.mkdir(exist_ok=True)
@@ -22,15 +24,18 @@ class myGui:
         self.is_running = False
         self.default_position = None
         self.shortcuts_dictionary = {}
+
         self.root = tk.Tk()
         self.root.title("Key2Click")
         # self.root.attributes("-topmost",True)
         # self.root.overrideredirect(True)
         self.root.geometry("700x800")
+        self.root.minsize(700,750)
+        self.root.configure(bg="#f5f5f5")
         self.root.iconbitmap("./Learning/click icon.ico")
         self.root.protocol("WM_DELETE_WINDOW",self.on_close) #When closing window - call self.on_close() function
 
-        self.main = tk.LabelFrame(master=self.root,border=0) #Everything stays inside here
+        self.main = tk.LabelFrame(master=self.root,border=0,bg="#f5f5f5") #Everything stays inside here
         self.header = tk.LabelFrame(master=self.main,border=0)
         self.main_label = tk.Label(master=self.header,text="Key2Click",font="Calibri 20 bold")
         self.x = Image.open("./Learning/help icon.png").resize((25,25))
@@ -40,31 +45,31 @@ class myGui:
         
         self.main_label.grid(row=0,column=0)
         self.icon.grid(row=0,column=1,padx=5)
-        self.header.grid(row=0,column=0,columnspan=3,pady=(5,15))
+        self.header.grid(row=0,column=0,columnspan=3,pady=(5,20))
         # self.root.config(cursor="crosshair") #Can be useful later
         
-        self.create_shortcut = tk.Button(master=self.main,text="Select point",command=self.add_map_point,cursor="hand2") #Select point button
-        self.selected_point = tk.Label(master=self.main) #Displays the point that was selected, may be removed
+        self.create_shortcut = tk.Button(master=self.main,text="Select point",command=self.add_map_point,cursor="hand2",fg=self.button_fg,bg="white") #Select point button
+        self.selected_point = tk.Label(master=self.main,text="No point selected") #Displays the point that was selected, may be removed
 
         self.create_shortcut.grid(row=2,column=1,pady=(0,20)) 
-        # self.selected_point.grid(row=1,column=1)
+        self.selected_point.grid(row=1,column=1)
         
         #Area for collecting the shortcut keybind
         self.shortcut_entry_frame = tk.LabelFrame(master=self.main,borderwidth=0,border=0)  
         self.enter_shortcut = tk.Label(master=self.shortcut_entry_frame,text="Enter shortcut") #Label describing it
         self.enter_shortcut.grid(row=0,column=0,padx=(0,5))
-        self.shortcut_entry = tk.Entry(master=self.shortcut_entry_frame) #Entry for it
+        self.shortcut_entry = tk.Entry(master=self.shortcut_entry_frame,bd=1) #Entry for it
         self.shortcut_entry.grid(row=0,column=1)
         self.shortcut_entry_frame.grid(row=3,column=0,columnspan=3,pady=(0,10))
     
         self.shortcut_set_to = tk.Label(master=self.main)
 
-        self.add_shortcut = tk.Button(master=self.main,text="Add",command=self.add_shortcut_to_list)
+        self.add_shortcut = tk.Button(master=self.main,text="Add",command=self.add_shortcut_to_list,cursor="hand2",fg=self.button_fg,bg="white")
         self.add_shortcut.grid(row=4,column=1,pady=(0,20))
 
         #Section that contains working shortcuts
         self.shortcuts = tk.LabelFrame(master=self.main,border=0,highlightthickness=0,relief='flat')
-        self.working_shortcuts = tk.Label(master=self.shortcuts,text="Loaded shortcuts",font="Calibri 16")
+        self.working_shortcuts = tk.Label(master=self.shortcuts,text="Loaded shortcuts",font="Calibri 16",border=0)
         self.working_shortcuts.pack()
         
         self.shortcut_list = tk.LabelFrame(master=self.shortcuts,border=0,highlightthickness=0,relief='flat')
@@ -72,25 +77,25 @@ class myGui:
         self.scrollbar = tk.Scrollbar(master=self.shortcut_list)
         self.scrollbar.pack(side=tk.RIGHT,fill=tk.Y)
 
-        self.shortcuts_listbox = tk.Listbox(master=self.shortcut_list,yscrollcommand=self.scrollbar.set,width=50,highlightthickness=0,selectmode=tk.EXTENDED,font="Courier")
+        self.shortcuts_listbox = tk.Listbox(master=self.shortcut_list,yscrollcommand=self.scrollbar.set,width=50,highlightthickness=0,selectmode=tk.EXTENDED,font="Courier",border=0)
         self.shortcuts_listbox.pack(fill=tk.X,expand=True)
         self.scrollbar.config(command=self.shortcuts_listbox.yview)
-        self.shortcuts.grid(row=5,column=0,columnspan=3)
+        self.shortcuts.grid(row=5,column=0,columnspan=3,pady=(0,10))
         
         #Options for Opening json file, deleting selected shortcut and editing shortcut
         self.options = tk.LabelFrame(master=self.main,border=0) 
-        self.open_saved = tk.Button(master=self.options,text="Open saved",command=self.open_file)
-        self.export_to = tk.Button(master=self.options,text="Export shortcuts",command=self.export_to_json)
-        self.delete_shortcut = tk.Button(master=self.options,text="Delete selected",command=self.delete_selected)
-        self.edit_shortcut = tk.Button(master=self.options,text="Edit Point",command=self.edit_selected_point)
+        self.open_saved = tk.Button(master=self.options,text="Open saved",command=self.open_file,cursor="hand2",fg=self.button_fg,bg="white")
+        self.export_to = tk.Button(master=self.options,text="Export shortcuts",command=self.export_to_json,cursor="hand2",fg=self.button_fg,bg="white")
+        self.delete_shortcut = tk.Button(master=self.options,text="Delete selected",command=self.delete_selected,cursor="hand2",fg=self.button_fg,bg="white")
+        self.edit_shortcut = tk.Button(master=self.options,text="Edit Point",command=self.edit_selected_point,cursor="hand2",fg=self.button_fg,bg="white")
         self.open_saved.grid(row=0,column=0,padx=10)
         self.export_to.grid(row=0,column=1,padx=10)
         self.delete_shortcut.grid(row=0,column=2,padx=10)
         self.edit_shortcut.grid(row=0,column=3,padx=10)
         self.options.grid(row=6,column=0,columnspan=3,pady=10)
 
-        self.start_btn = tk.Button(master=self.main,text="START",padx=10,pady=10,cursor="hand2",command=self.start_program,font="Calibri 16 bold")
-        self.start_btn.grid(row=7,column=0,columnspan=3)
+        self.start_btn = tk.Button(master=self.main,text="START",padx=10,pady=10,cursor="hand2",command=self.start_program,font="Calibri 16 bold",fg="white",bg="#019315",activeforeground="white",activebackground="#026E10")
+        self.start_btn.grid(row=7,column=0,columnspan=3,padx=(10,0))
 
         #Bring back auto_saved shortcuts
         self.auto_saved_shortcuts()
@@ -104,9 +109,10 @@ class myGui:
         if not self.is_running:
             if len(self.shortcuts_dictionary)>0:
                 self.is_running = True
-                self.start_btn.config(text="STOP")
+                self.start_btn.config(text="STOP",activebackground="#A50000",bg="#D10000")
                 #Hide irrelevant stuff on screen first
                 #Will only show loaded shortcuts
+                self.selected_point.grid_forget()
                 self.shortcut_entry_frame.grid_forget()
                 self.add_shortcut.grid_forget()
                 self.create_shortcut.grid_forget()
@@ -120,11 +126,12 @@ class myGui:
         else:
             self.is_running = False
             #Bring back stuff to the screen
+            self.selected_point.grid(row=1,column=1)
             self.shortcut_entry_frame.grid(row=3,column=0,columnspan=3,pady=(0,10))
             self.add_shortcut.grid(row=4,column=1,pady=(0,20))
             self.options.grid(row=6,column=0,columnspan=3,pady=10)
             self.create_shortcut.grid(row=2,column=1,pady=(0,20))
-            self.start_btn.config(text="START")
+            self.start_btn.config(text="START",bg="#019315",activeforeground="white",activebackground="#026E10")
             #Stop program
             self.quit_program(self.listener)
     def quit_program(self,hotkey_class):
@@ -132,10 +139,11 @@ class myGui:
             hotkey_class.stop()
     def show_help(self,event=None):
         help = """Key2Click can help you use keyboard shortcuts to click on points on your screen
-        1. Click on "Create a shortcut"
+        1. Click on "Select point"
         2. Select a point on your screen
         3. Type out the shortcut in the shortcut bar(e.g ctrl+f)
-        4. Press "Add shortcut" and you'll be able to use the shortcut to click on that point
+        4. Press "Add" to add the shortcut to loaded shortcuts
+        5. Once done loading all your shortcuts, press 'START'
         """
         messagebox.showinfo("How to",help)
     def on_click(self,x,y,button,pressed):
@@ -172,7 +180,7 @@ class myGui:
             coordinate_x, coordinate_y = self.default_position
             self.configure_selection_window(False)
             self.selected_point.config(text=f"Coordinates -> {coordinate_x},{coordinate_y}")
-            self.selected_point.grid(row=1,column=1)
+            # self.selected_point.grid(row=1,column=1)
     def add_shortcut_to_list(self):
         if not self.default_position:
             messagebox.showinfo("Note","You have not selected a point!")
@@ -186,7 +194,7 @@ class myGui:
                 self.insert_listbox(shortcut,self.default_position)
                 self.shortcuts_dictionary[shortcut] = self.default_position
                 self.default_position = None
-                self.selected_point.grid_forget()
+                # self.selected_point.grid_forget()
                 self.shortcut_entry.delete(0,tk.END)
                 self.save_shortcuts()
     def is_available(self,shortcut):
