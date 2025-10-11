@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 from pathlib import Path
 import tkinter as tk
@@ -9,7 +10,7 @@ from pynput.keyboard import HotKey
 from pynput.keyboard import GlobalHotKeys
 from pynput.mouse import Listener
 import pyautogui
-
+import webbrowser
 class myGui:
     def __init__(self):
         self.button_fg ="#333333"
@@ -30,15 +31,17 @@ class myGui:
         # self.root.attributes("-topmost",True)
         # self.root.overrideredirect(True)
         self.root.geometry("700x800")
-        self.root.minsize(700,750)
+        self.root.minsize(700,800)
         self.root.configure(bg="#f5f5f5")
-        self.root.iconbitmap("./Learning/click icon.ico")
+        self.icon_path = self.resource_path("click icon.ico")
+        self.root.iconbitmap(self.icon_path)
         self.root.protocol("WM_DELETE_WINDOW",self.on_close) #When closing window - call self.on_close() function
 
         self.main = tk.LabelFrame(master=self.root,border=0,bg="#f5f5f5") #Everything stays inside here
         self.header = tk.LabelFrame(master=self.main,border=0)
         self.main_label = tk.Label(master=self.header,text="Key2Click",font="Calibri 20 bold")
-        self.x = Image.open("./Learning/help icon.png").resize((25,25))
+        self.help_icon = self.resource_path("help icon.png")
+        self.x = Image.open(self.help_icon).resize((25,25))
         self.help_icon = ImageTk.PhotoImage(self.x)
         self.icon = tk.Label(master=self.header,image=self.help_icon,fg="blue",cursor="hand2")
         self.icon.bind("<Button-1>",self.show_help) #When icon is clicked, call show_help()
@@ -97,10 +100,25 @@ class myGui:
         self.start_btn = tk.Button(master=self.main,text="START",padx=10,pady=10,cursor="hand2",command=self.start_program,font="Calibri 16 bold",fg="white",bg="#019315",activeforeground="white",activebackground="#026E10")
         self.start_btn.grid(row=7,column=0,columnspan=3,padx=(10,0))
 
+        self.github_path = self.resource_path("github logo.png")
+        self.github_img = Image.open(self.github_path).resize((30,30))
+        self.github_img_p = ImageTk.PhotoImage(self.github_img)
+
+        self.footer = tk.Frame(master=self.root,relief=tk.SUNKEN,bd=2)
+        footer_label = tk.Label(
+            master=self.footer,
+            image=self.github_img_p,
+            bg="#f0f0f0",
+            cursor="hand2"
+        )
+        footer_label.bind("<Button-1>",lambda e: self.open_url("https://github.com/emmanuel-pogbe/key2click"))
+        footer_label.pack(side=tk.RIGHT,padx=5,pady=5)
+
         #Bring back auto_saved shortcuts
         self.auto_saved_shortcuts()
 
         self.main.pack()
+        self.footer.pack(side=tk.BOTTOM,fill=tk.X)
         self.root.mainloop()
     
     def on_close(self):
@@ -343,5 +361,11 @@ class myGui:
         #Takes string having a tuple-like structure and turns it into a tuple
         cleaned = s.strip("() ").split(",")    
         return list(int(x) for x in cleaned)
+    def resource_path(self,relative_path):
+        if hasattr(sys, '_MEIPASS'):
+            return os.path.join(sys._MEIPASS, relative_path)
+        return os.path.join(os.path.abspath("."), relative_path)
+    def open_url(self,url):
+        webbrowser.open(url=url,autoraise=True)
 if __name__ == "__main__":
     start = myGui()
