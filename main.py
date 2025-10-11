@@ -171,25 +171,32 @@ class myGui:
     def configure_selection_window(self,is_selecting):
         if is_selecting == True:
             self.main.pack_forget() #Take away stuff from the screen
-            self.root.deiconify()  # Ensure window is not minimized
-            self.root.lift()       # Bring window to front (AI suggested this part)
-            self.root.focus_force() #I don't know, but AI suggested this part
-            self.root.attributes("-fullscreen", True)
+            self.footer.pack_forget()
+            # Get screen size and position
+            size = pyautogui.size()
+            width = size[0]
+            height = size[1]
+            
+            self.root.deiconify()
+            self.root.lift()
+            self.root.focus_force()
             self.root.overrideredirect(True)
-            self.root.config(cursor="crosshair") #Change to crosshair cursor
-            self.root.update_idletasks()  # Force update of idle tasks
-            self.root.after(100)          # Short delay to let window manager catch up
-            self.root.attributes("-alpha", 0.2) #Transparency
-            self.root.update() #AI suggested this part
+            self.root.geometry(f"{width}x{height}+0+0")
+
+            self.root.update_idletasks()
+            self.root.attributes("-alpha", 0.2)
+            self.root.update()
+            self.root.config(cursor="crosshair")
         else:
             self.root.after(100,self.main.pack)
+            self.root.after(100,lambda: self.footer.pack(side=tk.BOTTOM,fill=tk.X))
             # self.main.pack() #Bring back stuff to the screen
-            self.root.attributes("-fullscreen", False)
-            self.root.geometry("700x800")
+            # self.root.attributes("-fullscreen", False)
             self.root.overrideredirect(False)
+            self.root.geometry("700x800")
             self.root.attributes("-alpha", 1)
             self.root.config(cursor="")  # Set back to normal
-
+    
     def add_map_point(self):  #Will probably refactor this later
         proceed = messagebox.askokcancel("Note","Click at a point where you want to set a shortcut\n(after clicking 'ok' of course)")
         if proceed:
@@ -212,7 +219,7 @@ class myGui:
             else:
                 self.insert_listbox(shortcut,self.default_position)
                 self.shortcuts_dictionary[shortcut] = self.default_position
-                self.default_position = None
+                # self.default_position = None
                 # self.selected_point.grid_forget()
                 self.shortcut_entry.delete(0,tk.END)
                 self.save_shortcuts()

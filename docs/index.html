@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key2Click - Keyboard Shortcuts for Screen Points</title>
+    <link rel="icon" href="../click icon.ico" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 1.3em;
+            opacity: 0.95;
+            margin-bottom: 40px;
+        }
+
+        .download-section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px auto;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .version {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 0px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 50px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .download-info {
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .features {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px auto;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .features h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .feature-item {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-item h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+
+
+        .how-to {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px auto;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .how-to h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .steps {
+            counter-reset: step-counter;
+        }
+
+        .step {
+            counter-increment: step-counter;
+            padding: 20px;
+            margin: 15px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            position: relative;
+            padding-left: 80px;
+        }
+
+        .step::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .system-req {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px auto;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .system-req h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .req-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .req-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .req-list li:before {
+            content: "✓ ";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+            margin-top: 50px;
+        }
+
+        .github-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: white;
+            text-decoration: none;
+            padding: 10px 25px;
+            border: 2px solid white;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+
+        .github-link:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .changelog {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px auto;
+            margin-bottom: 0;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .changelog h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .version-entry {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .version-entry:last-child {
+            border-bottom: none;
+        }
+
+        .version-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .version-number {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .version-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .version-changes ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .version-changes li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .version-changes li:before {
+            content: "•";
+            position: absolute;
+            left: 10px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .download-btn {
+                padding: 15px 35px;
+                font-size: 1.1em;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⌨️ Key2Click</h1>
+            <p class="tagline">Assign keyboard shortcuts to screen points for instant clicking</p>
+        </header>
+
+        <div class="download-section">
+            <span class="version">Latest: v1.0.0</span>
+            <h2 style="color: #667eea; margin: 20px 0;">Download Now</h2>
+            <p style="margin-bottom: 30px;">Free • Open Source</p>
+            
+            <a href="https://github.com/emmanuel-pogbe/Key2Click/releases/download/v1.0.0/Key2Click.exe" target="_blank" class="download-btn">
+                ⬇️ Download Key2Click.exe
+            </a>
+            
+            <div class="download-info">
+                <p><strong>File size:</strong> ~60 MB | <strong>Platform:</strong> Windows</p>
+            </div>
+        </div>
+
+        <div class="features">
+            <h2>Features</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>Point Selection</h3>
+                    <p>Click anywhere on your screen to set a target point for automation</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Custom Shortcuts</h3>
+                    <p>Assign any keyboard combination to trigger clicks at your saved points</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Save & Load</h3>
+                    <p>Export your shortcuts as JSON files to backup or share with others</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Instant Clicking</h3>
+                    <p>Press your hotkey and watch the cursor automatically click your point</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Easy Management</h3>
+                    <p>Edit, delete, or update your shortcuts anytime with a simple interface</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Autosave</h3>
+                    <p>Shortcuts are saved automatically even when the app is closed</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="how-to">
+            <h2>🚀 How to Use</h2>
+            <div class="steps">
+                <div class="step">
+                    <h3>Download & Run</h3>
+                    <p>Download Key2Click.exe and double-click to launch. No installation needed!</p>
+                </div>
+                <div class="step">
+                    <h3>Select a Point</h3>
+                    <p>Click "Select Point" button and position your mouse where you want to automate clicks</p>
+                </div>
+                <div class="step">
+                    <h3>Set Your Hotkey</h3>
+                    <p>Enter a keyboard shortcut like &lt;ctrl&gt;+f or &lt;alt&gt;+&lt;shift&gt;+a</p>
+                </div>
+                <div class="step">
+                    <h3>Add Shortcut</h3>
+                    <p>Click "Add Shortcut" to save your point and hotkey combination</p>
+                </div>
+                <div class="step">
+                    <h3>Start Listening</h3>
+                    <p>Click "Start Listening" and press your hotkey to auto-click your saved point!</p>
+                </div>
+            </div>
+        </div> -->
+
+        <div class="changelog">
+            <h2>Changelog</h2>
+            
+            <!-- Add future versions here -->
+            <!--
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v1.1.0</span>
+                    <span class="version-date">TBD</span>
+                </div>
+                <div class="version-changes">
+                    <h4>Planned Features</h4>
+                    <ul>
+                        <li>Right-click and double-click support</li>
+                        <li>System tray integration</li>
+                        <li>Multi-monitor support improvements</li>
+                        <li>Customizable click delays</li>
+                    </ul>
+                </div>
+            </div>
+            -->
+            <div class="version-entry">
+                <div class="version-header">
+                    <span class="version-number">v1.0.0</span>
+                    <span class="version-date">October 11, 2025</span>
+                </div>
+                <div class="version-changes">
+                    <h4>Initial Release</h4>
+                    <ul>
+                        <li>Core functionality: point selection and hotkey assignment</li>
+                        <li>Save and load shortcuts to/from JSON files</li>
+                        <li>Export and import shortcut configurations</li>
+                        <li>Edit and delete existing shortcuts</li>
+                        <li>Automatic saving to AppData folder</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Key2Click</p>
+            <a href="https://github.com/emmanuel-pogbe/key2click" target="_blank" class="github-link">
+                View on GitHub →
+            </a>
+            <p style="margin-top: 20px; font-size: 0.9em;">
+                Licensed under MIT License | Free and Open Source
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
