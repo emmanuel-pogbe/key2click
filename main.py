@@ -5,7 +5,6 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
-from PIL import Image,ImageTk
 from pynput.keyboard import HotKey
 from pynput.keyboard import GlobalHotKeys
 from pynput.mouse import Listener
@@ -38,11 +37,11 @@ class myGui:
         self.root.protocol("WM_DELETE_WINDOW",self.on_close) #When closing window - call self.on_close() function
 
         self.main = tk.LabelFrame(master=self.root,border=0,bg="#f5f5f5") #Everything stays inside here
-        self.header = tk.LabelFrame(master=self.main,border=0)
-        self.main_label = tk.Label(master=self.header,text="Key2Click",font="Calibri 20 bold")
-        self.help_icon = self.resource_path("help icon.png")
-        self.x = Image.open(self.help_icon).resize((25,25))
-        self.help_icon = ImageTk.PhotoImage(self.x)
+        self.header = tk.LabelFrame(master=self.main,border=0,bg="#f5f5f5")
+        self.main_label = tk.Label(master=self.header,text="Key2Click",font="Calibri 20 bold",bg="#f5f5f5")
+
+        self.help_icon_pack = self.resource_path("help icon.gif")
+        self.help_icon = tk.PhotoImage(file=self.help_icon_pack)
         self.icon = tk.Label(master=self.header,image=self.help_icon,fg="blue",cursor="hand2")
         self.icon.bind("<Button-1>",self.show_help) #When icon is clicked, call show_help()
         
@@ -52,7 +51,7 @@ class myGui:
         # self.root.config(cursor="crosshair") #Can be useful later
         
         self.create_shortcut = tk.Button(master=self.main,text="Select point",command=self.add_map_point,cursor="hand2",fg=self.button_fg,bg="white") #Select point button
-        self.selected_point = tk.Label(master=self.main,text="No point selected") #Displays the point that was selected, may be removed
+        self.selected_point = tk.Label(master=self.main,text="No point selected",bg="#f5f5f5") #Displays the point that was selected, may be removed
 
         self.create_shortcut.grid(row=2,column=1,pady=(0,20)) 
         self.selected_point.grid(row=1,column=1)
@@ -71,8 +70,8 @@ class myGui:
         self.add_shortcut.grid(row=4,column=1,pady=(0,20))
 
         #Section that contains working shortcuts
-        self.shortcuts = tk.LabelFrame(master=self.main,border=0,highlightthickness=0,relief='flat')
-        self.working_shortcuts = tk.Label(master=self.shortcuts,text="Loaded shortcuts",font="Calibri 16",border=0)
+        self.shortcuts = tk.LabelFrame(master=self.main,border=0,highlightthickness=0,relief='flat',bg="#f5f5f5")
+        self.working_shortcuts = tk.Label(master=self.shortcuts,text="Loaded shortcuts",font="Calibri 16",border=0,bg="#f5f5f5")
         self.working_shortcuts.pack()
         
         self.shortcut_list = tk.LabelFrame(master=self.shortcuts,border=0,highlightthickness=0,relief='flat')
@@ -100,9 +99,8 @@ class myGui:
         self.start_btn = tk.Button(master=self.main,text="START",padx=10,pady=10,cursor="hand2",command=self.start_program,font="Calibri 16 bold",fg="white",bg="#019315",activeforeground="white",activebackground="#026E10")
         self.start_btn.grid(row=7,column=0,columnspan=3,padx=(10,0))
 
-        self.github_path = self.resource_path("github logo.png")
-        self.github_img = Image.open(self.github_path).resize((30,30))
-        self.github_img_p = ImageTk.PhotoImage(self.github_img)
+        self.github_img_path = self.resource_path("github logo.gif")
+        self.github_img_p = tk.PhotoImage(file=self.github_img_path)        
 
         self.footer = tk.Frame(master=self.root,relief=tk.SUNKEN,bd=2)
         footer_label = tk.Label(
