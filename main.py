@@ -99,17 +99,17 @@ class myGui:
         self.start_btn = tk.Button(master=self.main,text="START",padx=10,pady=10,cursor="hand2",command=self.start_program,font="Calibri 16 bold",fg="white",bg="#019315",activeforeground="white",activebackground="#026E10")
         self.start_btn.grid(row=7,column=0,columnspan=3,padx=(10,0))
 
-        self.github_img_path = self.resource_path("github logo.gif")
-        self.github_img_p = tk.PhotoImage(file=self.github_img_path)        
+        self.linkedin_img_path = self.resource_path("linkedin logo.gif")
+        self.linkedin_img_p = tk.PhotoImage(file=self.linkedin_img_path)        
 
         self.footer = tk.Frame(master=self.root,relief=tk.SUNKEN,bd=2)
         footer_label = tk.Label(
             master=self.footer,
-            image=self.github_img_p,
+            image=self.linkedin_img_p,
             bg="#f0f0f0",
             cursor="hand2"
         )
-        footer_label.bind("<Button-1>",lambda e: self.open_url("https://github.com/emmanuel-pogbe/key2click"))
+        footer_label.bind("<Button-1>",lambda e: self.open_url("https://www.linkedin.com/in/emmanuel-pogbe/"))
         footer_label.pack(side=tk.RIGHT,padx=5,pady=5)
 
         #Bring back auto_saved shortcuts
