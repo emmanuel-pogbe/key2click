@@ -29,8 +29,16 @@ class myGui:
         self.root.title("Key2Click")
         # self.root.attributes("-topmost",True)
         # self.root.overrideredirect(True)
-        self.root.geometry("700x800")
-        self.root.minsize(700,800)
+        self.screen_width = self.root.winfo_screenwidth()
+        self.screen_height = self.root.winfo_screenheight()
+
+        self.app_width = int(self.screen_width*0.5)
+        self.app_height = int(self.screen_height*0.8)
+        self.center_x = (self.screen_width - self.app_width) // 2
+        self.center_y = (self.screen_height - self.app_height) // 2
+        self.root.geometry(f"{self.app_width}x{self.app_height}+{self.center_x}+{self.center_y}")
+        self.root.minsize(int(self.screen_width * 0.4), self.app_height)
+
         self.root.configure(bg="#f5f5f5")
         self.icon_path = self.resource_path("click icon.ico")
         self.root.iconbitmap(self.icon_path)
@@ -58,7 +66,7 @@ class myGui:
         
         #Area for collecting the shortcut keybind
         self.shortcut_entry_frame = tk.LabelFrame(master=self.main,borderwidth=0,border=0)  
-        self.enter_shortcut = tk.Label(master=self.shortcut_entry_frame,text="Enter shortcut") #Label describing it
+        self.enter_shortcut = tk.Label(master=self.shortcut_entry_frame,text="Enter shortcut",bg="#f5f5f5") #Label describing it
         self.enter_shortcut.grid(row=0,column=0,padx=(0,5))
         self.shortcut_entry = tk.Entry(master=self.shortcut_entry_frame,bd=1) #Entry for it
         self.shortcut_entry.grid(row=0,column=1)
@@ -186,14 +194,17 @@ class myGui:
             self.root.update()
             self.root.config(cursor="crosshair")
         else:
-            self.root.after(100,self.main.pack)
-            self.root.after(100,lambda: self.footer.pack(side=tk.BOTTOM,fill=tk.X))
-            # self.main.pack() #Bring back stuff to the screen
-            # self.root.attributes("-fullscreen", False)
+            self.root.after(100, self.main.pack)
+            self.root.after(100, lambda: self.footer.pack(side=tk.BOTTOM, fill=tk.X))
             self.root.overrideredirect(False)
-            self.root.geometry("700x800")
             self.root.attributes("-alpha", 1)
             self.root.config(cursor="")  # Set back to normal
+
+            # Update geometry after window is deiconified and packed
+            self.root.update_idletasks()
+            center_x_1 = (self.screen_width) // 2
+            center_y_1 = (self.screen_height) // 2
+            self.root.geometry(f"{self.app_width}x{self.app_height}+{center_x_1}+{center_y_1}")
     
     def add_map_point(self):  #Will probably refactor this later
         proceed = messagebox.askokcancel("Note","Click at a point where you want to set a shortcut\n(after clicking 'ok' of course)")
