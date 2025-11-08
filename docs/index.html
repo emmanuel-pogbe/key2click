@@ -6,6 +6,8 @@
     <title>Key2Click - Keyboard Shortcuts for Screen Points</title>
     <link rel="icon" href="click icon.ico" type="image/x-icon">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -13,10 +15,10 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
             line-height: 1.6;
             color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0a192f;
             min-height: 100vh;
         }
 
@@ -32,15 +34,19 @@
         }
 
         h1 {
-            font-size: 3.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 4em;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
+            letter-spacing: -1px;
+            font-weight: 800;
         }
 
         .tagline {
-            font-size: 1.3em;
-            opacity: 0.95;
+            font-size: 1.4em;
+            opacity: 0.9;
             margin-bottom: 40px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
         }
 
         .download-section {
@@ -54,30 +60,32 @@
 
         .version {
             display: inline-block;
-            background: #4CAF50;
+            background: #3b82f6;
             color: white;
             padding: 8px 20px;
             border-radius: 20px;
             font-size: 0.9em;
             margin-bottom: 0px;
+            font-weight: 500;
         }
 
         .download-btn {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e3a8a;
             color: white;
             padding: 18px 50px;
             text-decoration: none;
             border-radius: 50px;
             font-size: 1.3em;
             font-weight: bold;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         .download-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4);
+            background: #2563eb;
         }
 
         .download-info {
@@ -96,9 +104,10 @@
         }
 
         .features h2 {
-            color: #667eea;
+            color: #1e3a8a;
             margin-bottom: 30px;
             font-size: 2em;
+            font-weight: 700;
         }
 
         .feature-grid {
@@ -110,15 +119,22 @@
 
         .feature-item {
             padding: 20px;
-            background: #f8f9fa;
+            background: #f8fafc;
             border-radius: 10px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #1e3a8a;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.1);
         }
 
         .feature-item h3 {
-            color: #667eea;
+            color: #1e3a8a;
             margin-bottom: 10px;
             font-size: 1.2em;
+            font-weight: 600;
         }
 
 
@@ -158,7 +174,7 @@
             left: 20px;
             top: 50%;
             transform: translateY(-50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e3a8a;
             color: white;
             width: 40px;
             height: 40px;
@@ -259,7 +275,7 @@
         }
 
         .version-number {
-            background: #667eea;
+            background: #1e3a8a;
             color: white;
             padding: 5px 15px;
             border-radius: 20px;
@@ -286,7 +302,7 @@
             content: "•";
             position: absolute;
             left: 10px;
-            color: #667eea;
+            color: #1e3a8a;
             font-weight: bold;
         }
 
@@ -320,7 +336,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>⌨️ Key2Click</h1>
+            <h1>Key2Click</h1>
             <p class="tagline">Assign keyboard shortcuts to screen points for instant clicking</p>
         </header>
 
@@ -330,7 +346,7 @@
             <p style="margin-bottom: 30px;">Free • Open Source</p>
             
             <a href="https://github.com/emmanuel-pogbe/key2click/releases/latest/download/Key2Click_Setup.exe" target="_blank" class="download-btn">
-                ⬇️ Download Key2Click
+                Download Key2Click
             </a>
             
             <div class="download-info">

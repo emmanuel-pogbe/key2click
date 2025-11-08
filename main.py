@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 import json
 from pathlib import Path
 import tkinter as tk
@@ -12,8 +13,19 @@ import pyautogui
 import webbrowser
 class myGui:
     def __init__(self):
+        self.lockfile = Path(os.getenv('TEMP')) / 'Key2Click.lock'
         self.button_fg ="#333333"
-
+        if self.lockfile.exists():
+            messagebox.showerror(
+                "Already Running",
+                "Key2Click is already open!\n\nPlease check your taskbar or system tray."
+            )
+            sys.exit(0)
+        #Create lock file
+        try:
+            self.lockfile.touch()
+        except:
+            pass
         pyautogui.FAILSAFE = False
         #Where to save shortcuts
         self.appdata = os.getenv("APPDATA")
@@ -128,6 +140,12 @@ class myGui:
         self.root.mainloop()
     
     def on_close(self):
+        """Clean up lock file when closing"""
+        try:
+            if self.lockfile.exists():
+                self.lockfile.unlink()
+        except:
+            pass
         self.save_shortcuts() #Save shortcuts before closing file
         self.root.destroy()
     def start_program(self):
