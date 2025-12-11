@@ -2,7 +2,6 @@ import os
 import sys
 from pathlib import Path
 import json
-from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
@@ -24,7 +23,7 @@ class myGui:
         #Create lock file
         try:
             self.lockfile.touch()
-        except:
+        except Exception:
             pass
         pyautogui.FAILSAFE = False
         #Where to save shortcuts
@@ -144,7 +143,7 @@ class myGui:
         try:
             if self.lockfile.exists():
                 self.lockfile.unlink()
-        except:
+        except Exception:
             pass
         self.save_shortcuts() #Save shortcuts before closing file
         self.root.destroy()
@@ -193,7 +192,7 @@ class myGui:
         self.default_position = x,y
         return False
     def configure_selection_window(self,is_selecting):
-        if is_selecting == True:
+        if is_selecting:
             self.main.pack_forget() #Take away stuff from the screen
             self.footer.pack_forget()
             # Get screen size and position
@@ -228,8 +227,8 @@ class myGui:
         proceed = messagebox.askokcancel("Note","Click at a point where you want to set a shortcut\n(after clicking 'ok' of course)")
         if proceed:
             self.configure_selection_window(True)
-            with Listener(on_click=self.on_click) as l:
-                l.join()
+            with Listener(on_click=self.on_click) as listener:
+                listener.join()
             coordinate_x, coordinate_y = self.default_position
             self.configure_selection_window(False)
             self.selected_point.config(text=f"Coordinates -> {coordinate_x},{coordinate_y}")
@@ -300,7 +299,7 @@ class myGui:
                         #If shortcut is valid and the value for the shortcut is a list and the length of the list = 2 (x and y values) and both values are integers and points are within the size of the screen
                         shortcut = shortcut.lower()
                         points = self.shorts.get(shortcut)
-                        if self.is_valid_shortcut(shortcut) and type(points) == list and len(points) == 2 and all(isinstance(x,int) for x in points) and points[0]<=screen_size[0] and points[1]<=screen_size[1]:
+                        if self.is_valid_shortcut(shortcut) and isinstance(points,list) and len(points) == 2 and all(isinstance(x,int) for x in points) and points[0]<=screen_size[0] and points[1]<=screen_size[1]:
                             if shortcut not in self.shortcuts_dictionary:
                                 temp_shortcut = self.shorts.get(shortcut)
                                 self.insert_listbox(shortcut,temp_shortcut)
@@ -336,7 +335,7 @@ class myGui:
         try:
             with open(self.config_file,"w") as sh:    
                 json.dump(self.shortcuts_dictionary,sh,indent=2)
-        except Exception as e:
+        except Exception:
             #What do I put here incase saving fails, probably log it or something, idk
             pass
     def get_shortcut_dictionary(self):
@@ -349,8 +348,8 @@ class myGui:
         selected = self.shortcuts_listbox.curselection()
         if len(selected) == 1:
             self.configure_selection_window(True) #Configure screen to select a new point
-            with Listener(on_click=self.on_click) as l:
-                l.join()
+            with Listener(on_click=self.on_click) as listener:
+                listener.join()
             coordinate_x, coordinate_y = self.default_position
             self.configure_selection_window(False)
             selected_point = self.shortcuts_listbox.get(selected[0])
@@ -371,7 +370,7 @@ class myGui:
                 for short,short_position in shortcuts.items():
                     self.shortcuts_dictionary[short] = short_position
                     self.insert_listbox(short,short_position)
-        except Exception as e:
+        except Exception:
             #autosave didn't work I guess, oh well
             pass
     def click_point(self,shortcut_key):
@@ -380,7 +379,7 @@ class myGui:
         try:
             pyautogui.moveTo(coordinate_x,coordinate_y)
             pyautogui.leftClick()
-        except pyautogui.FailSafeException as e:
+        except pyautogui.FailSafeException:
             pass
         except Exception as e:
              messagebox.showerror("Error",f"Something went wrong: {e.__class__.__name__} {e}")
@@ -388,7 +387,7 @@ class myGui:
         try:
             HotKey.parse(s)
             return True
-        except:
+        except Exception:
             #We can have more try except blocks in this place to make input handling more robust
             return False
     def listify(self,s: str) -> tuple: 
