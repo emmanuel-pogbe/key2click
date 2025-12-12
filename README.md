@@ -146,7 +146,7 @@ C:\Users\<YourUsername>\AppData\Roaming\Key2Click\shortcuts.json
 
 - **GUI Framework**: tkinter (built-in with Python)
 - **Keyboard Input**: pynput.keyboard (GlobalHotKeys, HotKey parsing)
-- **Mouse Control**: pynput.mouse (Controller for moving cursor and clicking)
+- **Mouse Control**: PyAutoGUI (Methods for moving cursor and clicking)
 - **File Management**: pathlib, json (for shortcut persistence)
 - **Instance Management**: File-based lock mechanism to prevent multiple instances
 
@@ -156,7 +156,10 @@ C:\Users\<YourUsername>\AppData\Roaming\Key2Click\shortcuts.json
 
 - Check your taskbar for another Key2Click window
 - The lock file is stored in: `%TEMP%\Key2Click.lock`, 
-- Lock file on windows  C:\Users\< Name >\AppData\Local\Temp\Key2Click.lock
+- You can find lockfile on windows:
+```
+C:\Users\<YourUserName>\AppData\Local\Temp\Key2Click.lock
+```
 - Delete this file manually if needed 
 
 ### Shortcuts not triggering
@@ -164,7 +167,7 @@ C:\Users\<YourUsername>\AppData\Roaming\Key2Click\shortcuts.json
 - Ensure the "START" button shows as active (red "STOP" button)
 - Check that your shortcut format is valid (use the help dialog for examples)
 - Ensure coordinates are within your screen bounds
-- Some applications may intercept keyboard shortcuts
+- Some applications may intercept keyboard shortcuts so clashes might occur
 
 ## 📄 License
 
